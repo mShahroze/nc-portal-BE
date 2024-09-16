@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import * as argon2 from 'argon2';
 import topicData from '../src/db/data/development-data/topics.js';
-import userData from '../src/db/data/development-data/users.js';
 import articleData from '../src/db/data/development-data/articles.js';
 import commentData from '../src/db/data/development-data/comments.js';
+import usersData from '../src/db/data/development-data/users.js';
 
 const prisma = new PrismaClient();
 
@@ -23,7 +24,18 @@ export async function seed() {
 
     console.log('Seeding users...');
     const createdUsers = await Promise.all(
-      userData.map((user) => prisma.user.create({ data: user }))
+      usersData.map(async (user) => {
+        const hashedPassword = user.password
+          ? await argon2.hash(user.password)
+          : await argon2.hash('defaultpassword');
+
+        return prisma.user.create({
+          data: {
+            ...user,
+            password: hashedPassword,
+          },
+        });
+      })
     );
     console.log(`Created ${createdUsers.length} users.`);
 
@@ -102,7 +114,7 @@ export async function seed() {
 }
 
 // Run the seed function if this script is executed directly
-if (process.argv[1] === new URL(import.meta.url).pathname) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   seed()
     .then(() => {
       console.log('Seed script completed.');

@@ -18,6 +18,6 @@
     "forceConsistentCasingInFileNames": true
   },
   "types": ["jest", "node"],
-  "include": ["prisma/**/*", "src/**/*.ts", "src/**/*.tsx", "eslint.config.js", "**/*.spec.ts"],
+  "include": ["prisma/**/*", "src/**/*.ts", "src/**/*.tsx", "types.d.ts", "swagger.ts", "eslint.config.js", "**/*.spec.ts", "src/middleware/auth"],
   "exclude": ["node_modules"]
 }

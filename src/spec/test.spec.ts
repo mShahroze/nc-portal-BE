@@ -3,6 +3,8 @@ import { expect } from '@jest/globals';
 import app from '../app';
 import { seed } from '../../prisma/seed';
 import prisma from '../db/prisma';
+import argon2 from 'argon2';
+import usersData from '../db/data/development-data/users.js';
 
 const request = supertest(app);
 
@@ -23,7 +25,7 @@ const request = supertest(app);
 
 describe('/api', () => {
   beforeEach(async () => {
-    await seed(); // Use the seed function you created for Prisma
+    await seed();
     // await logRelevantData();
   });
 
@@ -48,7 +50,7 @@ describe('/api', () => {
         description: 'Hi there boss!',
         slug: 'Sharoze',
       });
-      // Check if id is present but don't test its exact value
+
       expect(response.body.topic).toHaveProperty('id');
     });
 
@@ -70,13 +72,11 @@ describe('/api', () => {
     });
 
     it('POST / 422 given for keying existing slug (unprocessable)', async () => {
-      // First, create a topic
       await request
         .post('/api/topics')
         .send({ description: 'Original topic', slug: 'cats' })
         .expect(201);
 
-      // Then try to create another topic with the same slug
       const response = await request
         .post('/api/topics')
         .send({ description: 'Hello Master!', slug: 'cats' })
@@ -283,7 +283,6 @@ describe('/api', () => {
 
       expect(firstResponse.status).toBe(201);
 
-      // Check if the article was actually created in the database
       const firstArticle = await prisma.article.findUnique({
         where: { title: uniqueTitle },
       });
@@ -291,7 +290,6 @@ describe('/api', () => {
 
       console.log('Creating second article with the same title');
 
-      // Then try to create another article with the same title
       const secondResponse = await request
         .post('/api/articles')
         .send({
@@ -307,7 +305,6 @@ describe('/api', () => {
         secondResponse.body
       );
 
-      // Check if a second article was created in the database
       const allArticles = await prisma.article.findMany({
         where: { title: uniqueTitle },
       });
@@ -428,6 +425,7 @@ describe('/api', () => {
             username: 'butter_bridge',
             name: 'Test User',
             avatar_url: 'https://example.com/avatar.jpg',
+            password: 'fwefefe',
           },
         });
       }
@@ -588,7 +586,6 @@ describe('/api', () => {
           .delete(`/api/comments/${testCommentId}`)
           .expect(204);
 
-        // Verify the comment is deleted
         const deletedComment = await prisma.comment.findUnique({
           where: { id: testCommentId },
         });
@@ -602,6 +599,78 @@ describe('/api', () => {
 
         expect(body.msg).toBe('Not Found - Comment Does Not Exist!');
       });
+    });
+  });
+  describe('Authentication', () => {
+    const testUser = usersData[0];
+
+    beforeAll(async () => {
+      process.env.JWT_SECRET =
+        process.env.TEST_JWT_SECRET || 'testsecret';
+
+      try {
+        if (!testUser.password) {
+          throw new Error('Test user must have a password');
+        }
+
+        await prisma.user.upsert({
+          where: { username: testUser.username },
+          update: {
+            password: await argon2.hash(testUser.password),
+          },
+          create: {
+            username: testUser.username,
+            name: testUser.name,
+            avatar_url: testUser.avatar_url || '',
+            password: await argon2.hash(testUser.password),
+          },
+        });
+      } catch (error) {
+        console.error('Error setting up test user:', error);
+        throw error;
+      }
+    });
+
+    afterAll(async () => {
+      await prisma.$disconnect();
+    });
+
+    it('should return a token when correct credentials are provided', async () => {
+      const res = await request.post('/api/login').send({
+        username: testUser.username,
+        password: testUser.password,
+      });
+      expect(res.status).toEqual(200);
+      expect(res.body).toHaveProperty('token');
+    });
+
+    it('should return 401 when incorrect credentials are provided', async () => {
+      const res = await request.post('/api/login').send({
+        username: testUser.username,
+        password: 'wrongpassword',
+      });
+      expect(res.status).toEqual(401);
+    });
+
+    it('should allow access to protected route with valid token', async () => {
+      const loginRes = await request.post('/api/login').send({
+        username: testUser.username,
+        password: testUser.password,
+      });
+      expect(loginRes.status).toEqual(200);
+      expect(loginRes.body).toHaveProperty('token');
+
+      const token = loginRes.body.token;
+
+      const protectedRes = await request
+        .get('/api/protected')
+        .set('Authorization', `Bearer ${token}`);
+      expect(protectedRes.status).toEqual(200);
+    });
+
+    it('should deny access to protected route without token', async () => {
+      const res = await request.get('/api/protected');
+      expect(res.status).toEqual(401);
     });
   });
 });

@@ -9,7 +9,7 @@ export default {
     '^.+\\.(ts|tsx)$': [
       'ts-jest',
       {
-        useESM: true,
+        useESM: true, // Make sure to configure ESM support properly
       },
     ],
   },
@@ -20,6 +20,7 @@ export default {
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^(\\.{1,2}/.*)\\.js$': '$1', // Ensures imports are resolved correctly
+    '^src/(.*)$': '<rootDir>/src/$1', // Maps src aliases for module resolution
   },
 };

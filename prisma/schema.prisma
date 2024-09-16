@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -18,6 +15,8 @@ model Topic {
   slug        String    @unique
   description String
   articles    Article[]
+
+  @@index([slug])
 }
 
 model User {
@@ -25,8 +24,11 @@ model User {
   username   String    @unique
   name       String
   avatar_url String?
+  password   String
   articles   Article[]
   comments   Comment[]
+
+  @@index([username])
 }
 
 model Article {
@@ -40,6 +42,10 @@ model Article {
   author_id  String
   created_at DateTime  @default(now())
   comments   Comment[]
+
+  @@index([topic_id])
+  @@index([author_id])
+  @@index([created_at])
 }
 
 model Comment {
@@ -51,4 +57,8 @@ model Comment {
   author_id  String
   article    Article  @relation(fields: [article_id], references: [id])
   article_id String
+
+  @@index([author_id])
+  @@index([article_id])
+  @@index([created_at])
 }

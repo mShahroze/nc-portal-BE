@@ -21,7 +21,7 @@
     "db:reset": "npx prisma migrate reset"
   },
   "jest": {
-    "preset": "ts-jest",
+    "preset": "ts-jest/presets/default-esm",
     "testEnvironment": "node",
     "moduleDirectories": [
       "node_modules",
@@ -72,13 +72,19 @@
     "@prisma/client": "^5.19.1",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
+    "argon2": "^0.41.1",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "express-validator": "^7.2.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.12.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.14.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
@@ -89,6 +95,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^22.5.4",
     "@types/supertest": "^6.0.2",
     "@types/testing-library__jest-dom": "^5.14.9",
