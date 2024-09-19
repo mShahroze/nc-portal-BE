@@ -1,346 +1,139 @@
-# BE2-NC-Knews
+# NC News API
 
-# Northcoders News API 
+This is a modern, RESTful API built with Next.js, Prisma, and TypeScript to serve as the backend for the NC News application. It provides endpoints for articles, topics, comments, and users, offering user-friendly functionality for a Reddit-style news aggregation site.
 
-### Background
+## 🚀 Live Demo
 
-We will be building the API to use in the Northcoders News Sprint during the Front End block of the course.
+[Add your deployed API link here]
 
-Our database will be PSQL, and you will interact with it using [Knex](https://knexjs.org).
+## 🛠️ Technologies Used
 
-#### NOTE 1:
+- [Next.js](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Prisma](https://www.prisma.io/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Jest](https://jestjs.io/) for testing
 
-For this sprint ensure you have the eslint extension installed in VS-Code as it will help to enforce best practices when you are writing your code.
+## 🏁 Getting Started
 
-#### NOTE 2:
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-Read this README.md carefully! :)
+### Prerequisites
 
-### Step 1 - Seeding
+- Node.js (v14 or higher recommended)
+- npm (comes with Node.js)
+- PostgreSQL
 
-Data has been provided for both testing and development environments so you will need to write a seed function to seed your database. You should think about how you will write your seed file to use either test data or dev data depending on the environment that you're running in.
+### Installation
 
-1. You should have separate tables for topics, articles, users and comments, and you will need to think carefully about the order in which you seed your data.
+1. Clone the repository:
+   ```
+   git clone https://github.com/mShahroze/nc-portal-BE.git
+   cd nc-portal-BE
+   ```
 
-- Each topic should have:
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-  * `slug` field which is a unique string that acts as the table's primary key
-  * `description` field which is a string giving a brief description of a given topic
+3. Set up your environment variables:
+   Create a `.env` file in the root directory and add the following:
+   ```
+   DATABASE_URL="postgresql://username:password@localhost:5432/nc_knews?schema=public"
+   ```
+   Replace `username`, `password`, and `nc_news` with your PostgreSQL credentials and desired database name.
 
-- Each user should have:
+4. Set up the database and run migrations:
+   ```
+   npx prisma migrate dev
+   ```
 
-  * `username` which is the primary key & unique
-  * `avatar_url`
-  * `name`
+5. Seed the database:
+   ```
+   npx prisma db seed
+   ```
 
-- Each article should have:
-  * `article_id` which is the primary key
-  * `title`
-  * `body`
-  * `votes` defaults to 0
-  * `topic` field which references the slug in the topics table
-  * `author` field that references a user's primary key (username)
-  * `created_at` defaults to the current date
+6. Start the development server:
+   ```
+   npm run dev
+   ```
 
-* Each comment should have:
-  * `comment_id` which is the primary key
-  * `author` field that references a user's primary key (username)
-  * `article_id` field that references an article's primary key
-  * `votes` defaults to 0
-  * `created_at` defaults to the current date
-  * `body`
+The API should now be running on `http://localhost:3000`.
 
-- **NOTE:** psql expects Date types to be in a date format - not a timestamp! However, you can easily turn a timestamp into a date using js...
+## 📊 API Endpoints
 
-***
+Here are some of the available endpoints:
 
-### Step 2 - Building and Testing
+- `GET /api/topics`
+- `POST /api/topics`
+- `GET /api/articles`
+- `POST /api/articles`
+- `GET /api/articles/:article_id`
+- `PATCH /api/articles/:article_id`
+- `DELETE /api/articles/:article_id`
+- `GET /api/articles/:article_id/comments`
+- `POST /api/articles/:article_id/comments`
+- `PATCH /api/comments/:comment_id`
+- `DELETE /api/comments/:comment_id`
+- `GET /api/users`
+- `POST /api/users`
+- `GET /api/users/:username`
 
-1.  Build your Express app
-2.  Mount an API Router onto your app
-3.  Define the routes described below
-4.  Define controller functions for each of your routes.
-5.  Use proper project configuration from the offset, being sure to treat development and test differently.
-6.  Test each route **as you go**, checking both successful requests and the variety of errors you could expect to encounter.
+For a full list of endpoints and their descriptions, refer to the `src/swagger.ts` file or visit the `/api-docs` endpoint when the server is running.
 
-**HINT** You will need to take advantage of knex migrations in order to efficiently test your application.
+## 🧪 Running Tests
 
-***
+This project uses Jest for testing. To run the tests:
 
-#### Routes
-
-Your server should have the following end-points:
-```http
-GET /api/topics
-POST /api/topics
-
-GET /api/articles
-POST /api/articles
-
-GET /api/articles/:article_id
-PATCH /api/articles/:article_id
-DELETE /api/articles/:article_id
-
-GET /api/articles/:article_id/comments
-POST /api/articles/:article_id/comments
-
-PATCH /api/comments/:comment_id
-DELETE /api/comments/:comment_id
-
-GET /api/users
-POST /api/users
-
-GET /api/users/:username
-
-GET /api
+```
+npm test
 ```
 
-***
+## 📁 Project Structure
 
-#### Route Requirements
-
-These have been split into **must haves** and some slightly more advanced _nice to have / if time_. The _if time_ tasks should be left until you have tested and implemented all other functionality.
-
-***
-
-```http
-GET /api/topics
+```
+nc-news-api/
+├─ prisma/
+│  ├─ migrations/
+│  ├─ schema.prisma
+│  └─ seed.ts
+├─ src/
+│  ├─ controllers/
+│  ├─ db/
+│  ├─ errors/
+│  ├─ middleware/
+│  ├─ models/
+│  ├─ routes/
+│  ├─ spec/
+│  ├─ types/
+│  ├─ app.ts
+│  ├─ endpoints.ts
+│  └─ swagger.ts
+├─ .env
+├─ package.json
+├─ tsconfig.json
+└─ README.md
 ```
 
-##### Responds with
-- an array of topic objects, each of which should have the following properties:
-  * `slug`
-  * `description`
+## 🤝 Contributing
 
-***
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-```http
-POST /api/topics
-```
+## 📝 License
 
-##### Request body accepts
-- an object containing the following properties:
-  * `slug` which must be unique
-  * `description`
+This project is licensed under the MIT License.
 
-##### Responds with
-- the posted topic object
+## 👏 Acknowledgments
 
-***
+- [Northcoders](https://northcoders.com/) for the project inspiration and support
+- [Prisma](https://www.prisma.io/) for the excellent ORM
+- [Next.js](https://nextjs.org/) for the powerful React framework
 
-```http
-GET /api/articles
-```
+## 📞 Contact
 
-##### Responds with
-- an `articles` array of article objects, each of which should have the following properties:
-  * `author` which is the `username` from the users table
-  * `title`
-  * `article_id`
-  * `topic`
-  * `created_at`
-  * `votes`
-  * `comment_count` which is the total count of all the comments with this article_id - you should make use of knex queries in order to achieve this
+If you have any questions or feedback, please open an issue on this repository.
 
-##### Should accept queries
-  * `author`, which filters the articles by the username value specified in the query
-  * `topic`, which filters the articles by the topic value specified in the query
-  * `sort_by`, which sorts the articles by any valid column (defaults to date)
-  * `order`, which can be set to `asc` or `desc` for ascending or descending (defaults to descending)
+---
 
-##### If time (the following will make pagination easier when you get to building your front-end application)
-- accept the following queries:
-  * `limit`, which limits the number of responses (defaults to 10)
-  * `p`, stands for page which specifies the page at which to start (calculated using limit)
-- add a `total_count` property, displaying the total number of articles (this should display the total number of articles with any filters applied, discounting the limit)
-
-***
-
-```http
-POST /api/articles
-```
-
-##### Request body accepts
-- an object containing the following properties:
-  * `title`
-  * `body`
-  * `topic`
-  * `username`
-
-##### Responds with
-- the posted article
-
-***
-
-```http
-GET /api/articles/:article_id
-```
-
-##### Responds with
-- an article object,  which should have the following properties:
-  * `author` which is the `username` from the users table
-  * `title`
-  * `article_id`
-  * `body`
-  * `topic`
-  * `created_at`
-  * `votes`
-  * `comment_count` which is the total count of all the comments with this article_id - you should make use of knex queries in order to achieve this
-
-***
-
-```http
-PATCH /api/articles/:article_id
-```
-
-##### Request body accepts
-- an object in the form `{ inc_votes: newVote }`
-
-  * `newVote` will indicate how much the `votes` property in the database should be updated by
-
-  e.g.
-
-  `{ inc_votes : 1 }` would increment the current article's vote property by 1
-
-  `{ inc_votes : -100 }` would decrement the current article's vote property by 100
-
-##### Responds with
-- the updated article
-
-***
-
-```http
-DELETE /api/articles/:article_id
-```
-##### Should
-- delete the given article by `article_id`
-
-##### Responds with
-- status 204 and no content
-
-***
-
-```http
-GET /api/articles/:article_id/comments
-```
-
-##### Responds with
-- an array of comments for the given `article_id` of which each comment should have the following properties:
-  * `comment_id`
-  * `votes`
-  * `created_at`
-  * `author` which is the `username` from the users table
-  * `body`
-
-##### Accepts queries
-  * `sort_by`, which sorts the articles by any valid column (defaults to date)
-  * `order`, which can be set to `asc` or `desc` for ascending or descending (defaults to descending)
-
-##### If time  (the following will make pagination easier when you get to building your front-end application)
-- accept the following queries:
-  * `limit`, which limits the number of responses (defaults to 10)
-  * `p`, stands for page which specifies the page at which to start (calculated using limit)
-
-***
-
-```http
-POST /api/articles/:article_id/comments
-```
-
-##### Request body accepts
-- an object with the following properties:
-  * `username`
-  * `body`
-
-##### Responds with
-- the posted comment
-
-***
-
-```http
-PATCH /api/comments/:comment_id
-```
-##### Request body accepts
-- an object in the form `{ inc_votes: newVote }`
-
-  * `newVote` will indicate how much the `votes` property in the database should be updated by
-
-  e.g.
-
-  `{ inc_votes : 1 }` would increment the current article's vote property by 1
-
-  `{ inc_votes : -1 }` would decrement the current article's vote property by 1
-
-##### Responds with
-- the updated comment
-
-***
-
-```http
-DELETE /api/comments/:comment_id
-```
-
-##### Should
-- delete the given comment by `comment_id`
-
-##### Responds with
-- status 204 and no content
-
-***
-
-```http
-GET /api/users
-```
-
-##### Responds with
-- an array of user objects, each of which should have the following properties:
-  * `username`
-  * `avatar_url`
-  * `name`
-
-***
-
-```http
-POST /api/users
-```
-
-##### Request body accepts
-- an object containing the following properties:
-  * `username`
-  * `avatar_url`
-  * `name`
-
-##### Responds with
-- the posted user
-
-***
-
-```http
-GET /api/users/:username
-```
-
-##### Responds with
-- a user object which should have the following properties:
-  * `username`
-  * `avatar_url`
-  * `name`
-
-***
-
-```http
-GET /api
-```
-##### Responds with
-- JSON describing all the available endpoints on your API
-
-***
-
-### Step 3 - Hosting
-
-Make sure your application and your database is hosted using heroku
-
-### Step 4 - Preparing for your review and portfolio
-
-Finally, you should write a README for this project (and remove this one). The README should be broken down like this: https://gist.github.com/PurpleBooth/109311bb0361f32d87a2
-
-It should also include the link where your heroku app is hosted.
+Happy coding! 🚀
