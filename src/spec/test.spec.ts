@@ -340,9 +340,9 @@ describe('/api', () => {
     it('POST / status:201 responds with posted user object', async () => {
       const newUser = {
         username: 'BillGates',
-        avatar_url:
-          'https://cdn.britannica.com/47/188747-050-1D34E743.jpg',
         name: 'Bill Gates',
+        avatar_url: 'https://example.com/billgates.jpg',
+        password: 'securepassword123',
       };
 
       const { body } = await request
@@ -350,7 +350,13 @@ describe('/api', () => {
         .send(newUser)
         .expect(201);
 
-      expect(body.user).toEqual(newUser);
+      expect(body.user).toMatchObject({
+        username: newUser.username,
+        name: newUser.name,
+        avatar_url: newUser.avatar_url,
+      });
+      expect(body.user).toHaveProperty('id');
+      expect(body.user).not.toHaveProperty('password');
     });
 
     it('POST / status:422 when trying to create a user with existing username', async () => {
@@ -359,18 +365,19 @@ describe('/api', () => {
         throw new Error('No existing user found in the database');
       }
 
+      const newUser = {
+        username: existingUser.username,
+        name: 'Duplicate User',
+        avatar_url: 'https://example.com/duplicate.jpg',
+        password: 'anotherpassword123',
+      };
+
       const { body } = await request
         .post('/api/users')
-        .send({
-          username: existingUser.username,
-          avatar_url: 'https://example.com/avatar.jpg',
-          name: 'Duplicate User',
-        })
+        .send(newUser)
         .expect(422);
 
-      expect(body.msg).toBe(
-        'Unique Key Violation! Request cannot be processed'
-      );
+      expect(body.msg).toBe('Username already exists');
     });
 
     it('GET /:username status:200 responds with a user object by username', async () => {
